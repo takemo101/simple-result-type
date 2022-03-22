@@ -1,0 +1,41 @@
+{
+    "name": "takemo101/simple-result-type",
+    "description": "Simple Result Type",
+    "keywords": [
+        "php",
+        "package",
+        "result"
+    ],
+    "authors": [
+        {
+            "name": "takemo101",
+            "email": "takemo101@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/takemo101/simple-result-type",
+    "license": "MIT",
+    "require": {
+        "php": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Takemo101\\SimpleResultType\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "test/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "php": "^8.0",
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.4"
+    }
+}
