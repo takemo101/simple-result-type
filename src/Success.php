@@ -10,7 +10,7 @@ use Throwable;
  *
  * @template S
  * @template F
- * @implements Result<S, F>
+ * @implements Result<S,F>
  */
 abstract class Success implements Result
 {

@@ -178,7 +178,7 @@ class EntityTest extends TestCase
     /**
      * create success result
      *
-     * @return Result<integer, Exception>
+     * @return Result<integer,Exception>
      */
     private function createSuccessResult(): Result
     {
@@ -188,17 +188,20 @@ class EntityTest extends TestCase
     /**
      * create none success result
      *
-     * @return Result<void, Exception>
+     * @return Result<void,Exception>
      */
     private function createNoneSuccessResult(): Result
     {
-        return new NoneSuccess;
+        /** @var NoneSuccess<Exception> */
+        $success = new NoneSuccess;
+
+        return $success;
     }
 
     /**
      * create none success result
      *
-     * @return Result<void, Exception>
+     * @return Result<void,Exception>
      */
     private function createNoneSuccessExceptionResult(): Result
     {
@@ -208,7 +211,7 @@ class EntityTest extends TestCase
     /**
      * create mixed success result
      *
-     * @return Result<integer, Exception>
+     * @return Result<integer,Exception>
      */
     private function createMixedSuccessResult(): Result
     {
@@ -219,7 +222,7 @@ class EntityTest extends TestCase
 /**
  * test success
  *
- * @extends Success<integer, Exception>
+ * @extends Success<integer,Exception>
  */
 class TestSuccess extends Success
 {
@@ -248,7 +251,7 @@ class TestSuccess extends Success
 /**
  * test failure
  *
- * @extends Failure<integer, Exception>
+ * @extends Failure<integer,Exception>
  */
 class TestFailure extends Failure
 {
@@ -273,7 +276,7 @@ class TestFailure extends Failure
 /**
  * test none failure
  *
- * @extends Failure<void, Exception>
+ * @extends Failure<void,Exception>
  */
 class TestNoneFailure extends Failure
 {

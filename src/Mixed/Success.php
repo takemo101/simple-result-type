@@ -9,7 +9,7 @@ use Takemo101\SimpleResultType\Success as AbstractSuccess;
  *
  * @template S
  * @template F
- * @extends AbstractSuccess<S, F>
+ * @extends AbstractSuccess<S,F>
  */
 final class Success extends AbstractSuccess
 {

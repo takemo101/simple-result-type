@@ -8,7 +8,7 @@ use Takemo101\SimpleResultType\Success as AbstractSuccess;
  * none success
  *
  * @template F
- * @extends AbstractSuccess<void, F>
+ * @extends AbstractSuccess<void,F>
  */
 final class Success extends AbstractSuccess
 {

@@ -9,7 +9,7 @@ use Takemo101\SimpleResultType\Failure as AbstractFailure;
  *
  * @template S
  * @template F
- * @extends AbstractFailure<S, F>
+ * @extends AbstractFailure<S,F>
  */
 final class Failure extends AbstractFailure
 {
