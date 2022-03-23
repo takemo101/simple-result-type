@@ -2,14 +2,18 @@
 
 namespace Test;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Takemo101\SimpleResultType\{
     Resulter,
     Type,
     Error,
     Success,
+    CatchType,
 };
+use Exception;
+use RuntimeException;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * result test
@@ -443,5 +447,16 @@ class ResultTest extends TestCase
         $result = Resulter::trial(function () {
             return 10;
         }); // Success<integer>
+
+        // No error is output except for the exception specified in the CatchType Attribute class.
+        Resulter::trial(
+            #[CatchType(
+                RuntimeException::class,
+                InvalidArgumentException::class,
+            )]
+            function () {
+                throw new LogicException('error');
+            }
+        );
     }
 }

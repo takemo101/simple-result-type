@@ -56,7 +56,7 @@ class ResulterTest extends TestCase
     public function resulter__CatchType__OK(): void
     {
         $result = Resulter::trial(
-            #[CatchType(RuntimeException::class)]
+            #[CatchType(Exception::class)]
             function () {
                 throw new RuntimeException('error');
             }
