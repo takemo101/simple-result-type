@@ -19,7 +19,7 @@ abstract class AbstractResult implements Result
      * @param R $or
      * @return S|R
      */
-    public function successOr($or)
+    public function successOr($or = null)
     {
         return $this->isSuccess() ? $this->success() : $or;
     }
@@ -32,7 +32,7 @@ abstract class AbstractResult implements Result
      * @param R $or
      * @return E|R
      */
-    public function errorOr($or)
+    public function errorOr($or = null)
     {
         return $this->isError() ? $this->error() : $or;
     }

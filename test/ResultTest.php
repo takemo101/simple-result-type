@@ -2,14 +2,18 @@
 
 namespace Test;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Takemo101\SimpleResultType\{
     Resulter,
     Type,
     Error,
     Success,
+    CatchType,
 };
+use Exception;
+use RuntimeException;
+use InvalidArgumentException;
+use LogicException;
 
 /**
  * result test
@@ -144,10 +148,13 @@ class ResultTest extends TestCase
      */
     public function success__successOr__OK(): void
     {
-        $data = Resulter::success('string')
-            ->successOr('success');
+        $result = Resulter::success('string');
 
-        $this->assertEquals($data, 'string');
+        $this->assertEquals($result->successOr('success'), 'string');
+
+        $result = Resulter::error('string');
+
+        $this->assertEquals($result->successOr(), null);
     }
 
     /**
@@ -229,6 +236,25 @@ class ResultTest extends TestCase
      *
      * @return void
      */
+    public function error__flatMapError__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->flatMapError(function (string $result) {
+                return Resulter::error('first-' . $result);
+            })
+            ->flatMapError(function (string $result) {
+                return Resulter::success('yes-' . $result);
+            })
+            ->success();
+
+        $this->assertEquals($data, 'yes-first-string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
     public function error__mapBoth__OK(): void
     {
         $data = Resulter::error('string')
@@ -283,10 +309,13 @@ class ResultTest extends TestCase
      */
     public function error__errorOr__OK(): void
     {
-        $data = Resulter::error('string')
-            ->errorOr('error');
+        $result = Resulter::error('string');
 
-        $this->assertEquals($data, 'string');
+        $this->assertEquals($result->errorOr('error'), 'string');
+
+        $result = Resulter::success('string');
+
+        $this->assertEquals($result->errorOr(), null);
     }
 
 
@@ -330,38 +359,6 @@ class ResultTest extends TestCase
             ->error();
 
         $this->assertEquals($data, 'string');
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function resulter__trial__OK(): void
-    {
-        $data = Resulter::trial(function () {
-            return 'string';
-        })
-            ->exception()
-            ->success();
-
-        $this->assertEquals($data, 'string');
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function resulter__trial__NG(): void
-    {
-        $this->expectException(Exception::class);
-
-        Resulter::trial(function () {
-            throw new Exception('error');
-        })
-            ->exception()
-            ->error();
     }
 
     /**
@@ -450,5 +447,16 @@ class ResultTest extends TestCase
         $result = Resulter::trial(function () {
             return 10;
         }); // Success<integer>
+
+        // No error is output except for the exception specified in the CatchType Attribute class.
+        Resulter::trial(
+            #[CatchType(
+                RuntimeException::class,
+                InvalidArgumentException::class,
+            )]
+            function () {
+                throw new LogicException('error');
+            }
+        );
     }
 }

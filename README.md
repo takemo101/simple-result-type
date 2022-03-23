@@ -79,8 +79,14 @@ var_dump($data); // string(7) "success"
 ```
 Try operations that may fail and produce results.
 ```php
-use Takemo101\SimpleResultType\Resulter;
+use Takemo101\SimpleResultType\{
+    Resulter,
+    CatchType,
+};
 use Exception;
+use LogicException;
+use RuntimeException;
+use InvalidArgumentException;
 
 // If an exception occurs, the result will be returned as Error.
 $result = Resulter::trial(function() {
@@ -91,4 +97,15 @@ $result = Resulter::trial(function() {
 $result = Resulter::trial(function() {
     return 10;
 }); // Success<integer>
+
+// No error is output except for the exception specified in the CatchType Attribute class.
+Resulter::trial(
+    #[CatchType(
+        RuntimeException::class,
+        InvalidArgumentException::class,
+    )]
+    function() {
+        throw new LogicException('error');
+    }
+);
 ```
