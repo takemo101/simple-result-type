@@ -114,6 +114,18 @@ interface Result
      */
     public function mapError(callable $callback): Result;
 
+
+    /**
+     * flat map error
+     *
+     * @template R
+     * @template F
+     *
+     * @param callable(E):Result<R,F> $callback
+     * @return Result<R,F>
+     */
+    public function flatMapError(callable $callback): Result;
+
     /**
      * map both process
      *

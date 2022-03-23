@@ -93,6 +93,17 @@ final class Success extends AbstractResult
     }
 
     /**
+     * map error
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function mapError(callable $callback): Result
+    {
+        return $this;
+    }
+
+    /**
      * flat map success
      *
      * @template R
@@ -107,12 +118,12 @@ final class Success extends AbstractResult
     }
 
     /**
-     * map error
+     * flat map error
      *
      * @param callable $callback
      * @return static
      */
-    public function mapError(callable $callback): Result
+    public function flatMapError(callable $callback): Result
     {
         return $this;
     }

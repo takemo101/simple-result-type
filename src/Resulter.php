@@ -2,6 +2,7 @@
 
 namespace Takemo101\SimpleResultType;
 
+use Takemo101\SimpleResultType\Support\CallableToAttribute;
 use Throwable;
 
 /**
@@ -24,6 +25,13 @@ final class Resulter
             $result = new Success(call_user_func($callback));
             return $result;
         } catch (Throwable $e) {
+
+            $errorType = CallableToAttribute::create($callback)?->toAttribute();
+
+            if ($errorType && !$errorType->included($e)) {
+                throw $e;
+            }
+
             /** @var Result<never,Throwable> */
             $result = new Error($e);
             return $result;

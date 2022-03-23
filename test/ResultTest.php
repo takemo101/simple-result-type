@@ -232,6 +232,25 @@ class ResultTest extends TestCase
      *
      * @return void
      */
+    public function error__flatMapError__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->flatMapError(function (string $result) {
+                return Resulter::error('first-' . $result);
+            })
+            ->flatMapError(function (string $result) {
+                return Resulter::success('yes-' . $result);
+            })
+            ->success();
+
+        $this->assertEquals($data, 'yes-first-string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
     public function error__mapBoth__OK(): void
     {
         $data = Resulter::error('string')
@@ -336,38 +355,6 @@ class ResultTest extends TestCase
             ->error();
 
         $this->assertEquals($data, 'string');
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function resulter__trial__OK(): void
-    {
-        $data = Resulter::trial(function () {
-            return 'string';
-        })
-            ->exception()
-            ->success();
-
-        $this->assertEquals($data, 'string');
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function resulter__trial__NG(): void
-    {
-        $this->expectException(Exception::class);
-
-        Resulter::trial(function () {
-            throw new Exception('error');
-        })
-            ->exception()
-            ->error();
     }
 
     /**
