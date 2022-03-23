@@ -12,6 +12,32 @@ namespace Takemo101\SimpleResultType;
 abstract class AbstractResult implements Result
 {
     /**
+     * get success or result data
+     *
+     * @template R
+     *
+     * @param R $or
+     * @return S|R
+     */
+    public function successOr($or)
+    {
+        return $this->isSuccess() ? $this->success() : $or;
+    }
+
+    /**
+     * get error or result data
+     *
+     * @template R
+     *
+     * @param R $or
+     * @return E|R
+     */
+    public function errorOr($or)
+    {
+        return $this->isError() ? $this->error() : $or;
+    }
+
+    /**
      * result is success
      *
      * @return boolean

@@ -118,6 +118,22 @@ final class Success extends AbstractResult
     }
 
     /**
+     * map both process
+     *
+     * @template R
+     *
+     * @param callable(S):R|null $success
+     * @param callable|null $error
+     * @return Result<R,never>
+     */
+    public function mapBoth(
+        ?callable $success = null,
+        ?callable $error = null,
+    ): Result {
+        return $success ? new static(call_user_func($success, $this->success())) : $this;
+    }
+
+    /**
      * throw exception
      *
      * @return static

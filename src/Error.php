@@ -115,6 +115,22 @@ final class Error extends AbstractResult
     }
 
     /**
+     * map both process
+     *
+     * @template R
+     *
+     * @param callable|null $success
+     * @param callable(E):R|null $error
+     * @return Result<never,R>
+     */
+    public function mapBoth(
+        ?callable $success = null,
+        ?callable $error = null,
+    ): Result {
+        return $error ? new static(call_user_func($error, $this->error())) : $this;
+    }
+
+    /**
      * throw exception
      *
      * @return static

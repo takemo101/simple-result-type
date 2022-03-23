@@ -95,6 +95,23 @@ class ResultTest extends TestCase
      *
      * @return void
      */
+    public function success__mapBoth__OK(): void
+    {
+        $data = Resulter::success('string')
+            ->mapBoth(
+                success: fn (string $result) => 'success',
+                error: fn (string $result) => 'error'
+            )
+            ->success();
+
+        $this->assertEquals($data, 'success');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
     public function success__output__OK(): void
     {
         $data = Resulter::success('string')
@@ -104,6 +121,33 @@ class ResultTest extends TestCase
             );
 
         $this->assertEquals($data, 'string-success');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function success__errorOr__OK(): void
+    {
+        $data = Resulter::success('string')
+            ->errorOr('error');
+
+        $this->assertEquals($data, 'error');
+    }
+
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function success__successOr__OK(): void
+    {
+        $data = Resulter::success('string')
+            ->successOr('success');
+
+        $this->assertEquals($data, 'string');
     }
 
     /**
@@ -185,6 +229,23 @@ class ResultTest extends TestCase
      *
      * @return void
      */
+    public function error__mapBoth__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->mapBoth(
+                success: fn (string $result) => 'success',
+                error: fn (string $result) => 'error'
+            )
+            ->error();
+
+        $this->assertEquals($data, 'error');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
     public function error__flatMap__OK(): void
     {
         $data = Resulter::error('string')
@@ -214,6 +275,34 @@ class ResultTest extends TestCase
 
         $this->assertEquals($data, 'string-error');
     }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__errorOr__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->errorOr('error');
+
+        $this->assertEquals($data, 'string');
+    }
+
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__successOr__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->successOr('success');
+
+        $this->assertEquals($data, 'success');
+    }
+
 
     /**
      * @test

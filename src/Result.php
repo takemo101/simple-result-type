@@ -20,11 +20,31 @@ interface Result
     public function success();
 
     /**
+     * get success or result data
+     *
+     * @template R
+     *
+     * @param R $or
+     * @return S|R
+     */
+    public function successOr($or);
+
+    /**
      * get error result data
      *
      * @return E
      */
     public function error();
+
+    /**
+     * get error or result data
+     *
+     * @template R
+     *
+     * @param R $or
+     * @return E|R
+     */
+    public function errorOr($or);
 
     /**
      * get result type
@@ -93,6 +113,21 @@ interface Result
      * @return Result<never,R>
      */
     public function mapError(callable $callback): Result;
+
+    /**
+     * map both process
+     *
+     * @template R
+     * @template F
+     *
+     * @param callable(S):R $success
+     * @param callable(E):F $error
+     * @return Result<R,F>
+     */
+    public function mapBoth(
+        callable $success,
+        callable $error,
+    ): Result;
 
     /**
      * throw exception
