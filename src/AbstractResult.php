@@ -28,7 +28,7 @@ abstract class AbstractResult implements Result
      */
     final public function isError(): bool
     {
-        return $this->type()->isSuccess();
+        return $this->type()->isError();
     }
 
     /**

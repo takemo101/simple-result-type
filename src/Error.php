@@ -4,7 +4,6 @@ namespace Takemo101\SimpleResultType;
 
 use RuntimeException;
 use Throwable;
-use ReflectionFunction;
 
 /**
  * error result class
