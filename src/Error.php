@@ -2,97 +2,67 @@
 
 namespace Takemo101\SimpleResultType;
 
-use Closure;
+use RuntimeException;
 use Throwable;
+use ReflectionFunction;
 
 /**
  * error result class
  *
- * @template S
- * @template F
- * @implements Result<S,F>
+ * @template E
+ * @extends AbstractResult<never,E>
  */
-final class Error implements Result
+final class Error extends AbstractResult
 {
     /**
      * constructor
      *
-     * @param Throwable $error
+     * @param E $result
      */
-    final public function __construct(
-        private Throwable $error,
+    public function __construct(
+        private $result,
     ) {
         //
     }
 
     /**
-     * get result data
+     * get success result data
      *
-     * @return null
+     * @return never
      */
     public function success()
     {
-        return null;
+        throw new RuntimeException('result error: is not success result');
     }
 
     /**
-     * get result data
+     * get error result data
      *
-     * @return null
+     * @return E
      */
-    public function failure()
+    public function error()
     {
-        return null;
+        return $this->result;
     }
 
-    /**
-     * result is success
-     *
-     * @return boolean
-     */
-    public function isSuccess(): bool
-    {
-        return false;
-    }
 
     /**
-     * result is failure
+     * get result type
      *
-     * @return boolean
+     * @return Type
      */
-    public function isFailure(): bool
+    public function type(): Type
     {
-        return false;
-    }
-
-    /**
-     * result is error
-     *
-     * @return boolean
-     */
-    public function isError(): bool
-    {
-        return true;
+        return Type::Error;
     }
 
     /**
      * on success callback process
      *
-     * @param Closure $callback
+     * @param callable $callback
      * @return static
      */
-    public function onSuccess(Closure $callback)
-    {
-        return $this;
-    }
-
-    /**
-     * on failure callback process
-     *
-     * @param Closure $callback
-     * @return static
-     */
-    public function onFailure(Closure $callback)
+    public function onSuccess(callable $callback)
     {
         return $this;
     }
@@ -100,14 +70,49 @@ final class Error implements Result
     /**
      * on error callback process
      *
-     * @param Closure $callback
+     * @param callable(E):void $callback
      * @return static
      */
-    public function onError(Closure $callback)
+    public function onError(callable $callback)
     {
-        $callback($this->error);
+        call_user_func($callback, $this->error());
 
         return $this;
+    }
+
+    /**
+     * map success
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function map(callable $callback): Result
+    {
+        return $this;
+    }
+
+    /**
+     * flat map success
+     *
+     * @param callable $callback
+     * @return static
+     */
+    public function flatMap(callable $callback): Result
+    {
+        return $this;
+    }
+
+    /**
+     * map error
+     *
+     * @template R
+     *
+     * @param callable(E):R $callback
+     * @return Result<never,R>
+     */
+    public function mapError(callable $callback): Result
+    {
+        return new static($callback($this->error()));
     }
 
     /**
@@ -118,26 +123,24 @@ final class Error implements Result
      */
     public function exception()
     {
-        throw $this->error;
+        if ($this->error() instanceof Throwable) {
+            throw $this->error();
+        }
+
+        return $this;
     }
 
     /**
-     * on result callback process
+     * create a error result.
      *
-     * @param Closure|null $onSuccess
-     * @param Closure|null $onFailure
-     * @param Closure|null $onError
-     * @return mixed
+     * @template R
+     *
+     * @param R $result
+     *
+     * @return Error<R>
      */
-    public function on(
-        ?Closure $onSuccess = null,
-        ?Closure $onFailure = null,
-        ?Closure $onError = null,
-    ): mixed {
-        if ($onError) {
-            return $onError($this->error);
-        }
-
-        return null;
+    public static function create($result = null)
+    {
+        return new static($result);
     }
 }

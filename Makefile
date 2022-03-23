@@ -31,13 +31,13 @@ autoload:
 test:
 	docker-compose run --rm php ./vendor/bin/phpunit
 
-.PHONY: test-php80
-test-php80:
-	docker-compose run -e PHP_VERSION=8.0 --rm php ./vendor/bin/phpunit
-
 .PHONY: phpstan
 phpstan:
 	docker-compose run --rm phpstan analyse
+
+.PHONY: analyze
+analyze:
+	docker-compose run --rm php ./vendor/bin/phpstan analyse
 
 #### for docker-compose ####
 

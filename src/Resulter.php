@@ -2,28 +2,57 @@
 
 namespace Takemo101\SimpleResultType;
 
-use Takemo101\SimpleResultType\None\Success;
-use Closure;
 use Throwable;
 
 /**
- * resulter class
+ * result support class
  */
 final class Resulter
 {
     /**
-     * watch and error catch
+     * try and catch
      *
-     * @param Closure $callback
-     * @return Result<mixed,mixed>
+     * @template S
+     *
+     * @param callable():S $callback
+     * @return Result<S,Throwable>
      */
-    static public function watch(Closure $callback): Result
+    static public function trial(callable $callback): Result
     {
         try {
-            $result = $callback();
-            return is_null($result) ? new Success : $result;
+            /** @var Result<S,never> */
+            $result = new Success(call_user_func($callback));
+            return $result;
         } catch (Throwable $e) {
-            return new Error($e);
+            /** @var Result<never,Throwable> */
+            $result = new Error($e);
+            return $result;
         }
+    }
+
+    /**
+     * create a success result
+     *
+     * @template T
+     *
+     * @param T $result
+     * @return Success<T>
+     */
+    static public function success($result = null): Success
+    {
+        return Success::create($result);
+    }
+
+    /**
+     * create a error result
+     *
+     * @template T
+     *
+     * @param T $result
+     * @return Error<T>
+     */
+    static public function error($result = null): Error
+    {
+        return Error::create($result);
     }
 }

@@ -2,55 +2,34 @@
 
 namespace Test;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Takemo101\SimpleResultType\{
-    Success,
-    Failure,
-    Result,
     Resulter,
+    Type,
 };
-use Takemo101\SimpleResultType\None\{
-    Success as NoneSuccess,
-};
-use Takemo101\SimpleResultType\Mixed\{
-    Success as MixedSuccess,
-};
-use Exception;
 
 /**
  * result test
  */
-class EntityTest extends TestCase
+class ResultTest extends TestCase
 {
     /**
      * @test
      *
      * @return void
      */
-    public function createSuccess__OK(): void
+    public function success__onSuccess__OK(): void
     {
-        $success = new TestSuccess(10);
-
-        $data = $success->success();
-
-        $this->assertEquals($data, 10);
-
-        $success
-            ->onSuccess(function (int $success) use (&$data) {
-                $data = 5;
+        $success = '';
+        $data = Resulter::success('string')
+            ->onSuccess(function () use (&$success) {
+                $success = 'success';
             })
-            ->onFailure(function (Exception $failure) use (&$data) {
-                $data = 40;
-            });
+            ->success();
 
-        $this->assertEquals($data, 5);
-
-        $data = $success->on(
-            onSuccess: fn () => 80,
-            onFailure: fn () => 160,
-        );
-
-        $this->assertEquals($data, 80);
+        $this->assertEquals($success, 'success');
+        $this->assertEquals($data, 'string');
     }
 
     /**
@@ -58,34 +37,194 @@ class EntityTest extends TestCase
      *
      * @return void
      */
-    public function createFailure__OK(): void
+    public function success__onError__OK(): void
+    {
+        $error = '';
+        $data = Resulter::success('string')
+            ->onError(function () use (&$error) {
+                $error = 'error';
+            })
+            ->success();
+
+        $this->assertEquals($error, '');
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function success__map__OK(): void
+    {
+        $data = Resulter::success('string')
+            ->map(function () {
+                return 'first';
+            })
+            ->map(function () {
+                return 'second';
+            })
+            ->success();
+
+        $this->assertEquals($data, 'second');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function success__flatMap__OK(): void
+    {
+        $data = Resulter::success('string')
+            ->flatMap(function () {
+                return Resulter::success('first');
+            })
+            ->flatMap(function () {
+                return Resulter::error('second');
+            })
+            ->error();
+
+        $this->assertEquals($data, 'second');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function success__output__OK(): void
+    {
+        $data = Resulter::success('string')
+            ->output(
+                success: fn (string $result) => $result . '-success',
+                error: fn (string $result) => $result . '-error',
+            );
+
+        $this->assertEquals($data, 'string-success');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__onSuccess__OK(): void
+    {
+        $success = '';
+        $data = Resulter::error('string')
+            ->onSuccess(function () use (&$success) {
+                $success = 'success';
+            })
+            ->error();
+
+        $this->assertEquals($success, '');
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__onError__OK(): void
+    {
+        $error = '';
+        $data = Resulter::error('string')
+            ->onError(function () use (&$error) {
+                $error = 'error';
+            })
+            ->error();
+
+        $this->assertEquals($error, 'error');
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__map__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->map(function () {
+                return 'first';
+            })
+            ->map(function () {
+                return 'second';
+            })
+            ->error();
+
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__mapError__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->mapError(function () {
+                return 'first';
+            })
+            ->mapError(function () {
+                return 'second';
+            })
+            ->error();
+
+        $this->assertEquals($data, 'second');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__flatMap__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->flatMap(function () {
+                return Resulter::success('first');
+            })
+            ->flatMap(function () {
+                return Resulter::error('second');
+            })
+            ->error();
+
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__output__OK(): void
+    {
+        $data = Resulter::error('string')
+            ->output(
+                success: fn (string $result) => $result . '-success',
+                error: fn (string $result) => $result . '-error',
+            );
+
+        $this->assertEquals($data, 'string-error');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function error__exception__OK(): void
     {
         $this->expectException(Exception::class);
 
-        $failure = new TestFailure(new Exception('error'));
-
-        $data = $failure->failure()->getMessage();
-
-        $this->assertEquals($data, 'error');
-
-        $failure
-            ->onSuccess(function (int $success) use (&$data) {
-                $data = 'success';
-            })
-            ->onFailure(function (Exception $failure) use (&$data) {
-                $data = 'failure';
-            });
-
-        $this->assertEquals($data, 'failure');
-
-        $data = $failure->on(
-            onSuccess: fn () => 'success',
-            onFailure: fn () => 'failure error',
-        );
-
-        $this->assertEquals($data, 'failure error');
-
-        $failure->exception();
+        Resulter::error(new Exception('error'))
+            ->exception()
+            ->error();
     }
 
     /**
@@ -93,15 +232,13 @@ class EntityTest extends TestCase
      *
      * @return void
      */
-    public function createNoneSuccess__OK(): void
+    public function error__exception__NG(): void
     {
-        $data = 10;
-        $result = $this->createNoneSuccessResult();
-        $result->onSuccess(function () use (&$data) {
-            $data = 20;
-        });
+        $data = Resulter::error('string')
+            ->exception()
+            ->error();
 
-        $this->assertEquals($data, 20);
+        $this->assertEquals($data, 'string');
     }
 
     /**
@@ -109,12 +246,31 @@ class EntityTest extends TestCase
      *
      * @return void
      */
-    public function createNoneSuccess__NG(): void
+    public function resulter__trial__OK(): void
+    {
+        $data = Resulter::trial(function () {
+            return 'string';
+        })
+            ->exception()
+            ->success();
+
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function resulter__trial__NG(): void
     {
         $this->expectException(Exception::class);
 
-        $result = $this->createNoneSuccessExceptionResult();
-        $result->exception();
+        Resulter::trial(function () {
+            throw new Exception('error');
+        })
+            ->exception()
+            ->error();
     }
 
     /**
@@ -122,177 +278,14 @@ class EntityTest extends TestCase
      *
      * @return void
      */
-    public function createMixedSuccess__NG(): void
+    public function type__OK(): void
     {
-        $result = $this->createMixedSuccessResult();
+        $result = Resulter::success('string');
+        $data = match ($result->type()) {
+            Type::Success => $result->success(),
+            Type::Error => $result->error(),
+        };
 
-        $this->assertEquals($result->success(), 10);
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function createResult__OK(): void
-    {
-        $result = $this->createSuccessResult();
-
-        $this->assertEquals($result->success(), 10);
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function resulter__OK(): void
-    {
-        /**
-         * @var Result<void, Exception>
-         */
-        $result = Resulter::watch(function () {
-            return new NoneSuccess;
-        });
-
-        $this->assertTrue($result->isSuccess());
-    }
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    public function resulterVoid__OK(): void
-    {
-        /**
-         * @var Result<void, Exception>
-         */
-        $result = Resulter::watch(function () {
-            //
-        });
-
-        $this->assertTrue($result->isSuccess());
-    }
-
-    /**
-     * create success result
-     *
-     * @return Result<integer,Exception>
-     */
-    private function createSuccessResult(): Result
-    {
-        return new TestSuccess(10);
-    }
-
-    /**
-     * create none success result
-     *
-     * @return Result<void,Exception>
-     */
-    private function createNoneSuccessResult(): Result
-    {
-        /** @var NoneSuccess<Exception> */
-        $success = new NoneSuccess;
-
-        return $success;
-    }
-
-    /**
-     * create none success result
-     *
-     * @return Result<void,Exception>
-     */
-    private function createNoneSuccessExceptionResult(): Result
-    {
-        return new TestNoneFailure(new Exception('error'));
-    }
-
-    /**
-     * create mixed success result
-     *
-     * @return Result<integer,Exception>
-     */
-    private function createMixedSuccessResult(): Result
-    {
-        return new MixedSuccess(10);
-    }
-}
-
-/**
- * test success
- *
- * @extends Success<integer,Exception>
- */
-class TestSuccess extends Success
-{
-    /**
-     * constructor
-     *
-     * @param integer $success
-     */
-    public function __construct(private int $success)
-    {
-        //
-    }
-
-    /**
-     * success data
-     *
-     * @return integer
-     */
-    public function success(): int
-    {
-        return $this->success;
-    }
-}
-
-
-/**
- * test failure
- *
- * @extends Failure<integer,Exception>
- */
-class TestFailure extends Failure
-{
-    public function __construct(
-        private Exception $failure,
-    ) {
-        //
-    }
-
-    /**
-     * failure data
-     *
-     * @return Exception
-     */
-    public function failure(): Exception
-    {
-        return $this->failure;
-    }
-}
-
-
-/**
- * test none failure
- *
- * @extends Failure<void,Exception>
- */
-class TestNoneFailure extends Failure
-{
-    public function __construct(
-        private Exception $failure,
-    ) {
-        //
-    }
-
-    /**
-     * failure data
-     *
-     * @return Exception
-     */
-    public function failure(): Exception
-    {
-        return $this->failure;
+        $this->assertEquals($data, 'string');
     }
 }

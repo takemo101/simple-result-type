@@ -2,30 +2,36 @@
 
 namespace Takemo101\SimpleResultType;
 
-use Closure;
 use Throwable;
 
 /**
  * result interface
  *
  * @template S
- * @template F
+ * @template E
  */
 interface Result
 {
     /**
-     * get result data
+     * get success result data
      *
      * @return S
      */
     public function success();
 
     /**
-     * get result data
+     * get error result data
      *
-     * @return F
+     * @return E
      */
-    public function failure();
+    public function error();
+
+    /**
+     * get result type
+     *
+     * @return Type
+     */
+    public function type(): Type;
 
     /**
      * result is success
@@ -35,13 +41,6 @@ interface Result
     public function isSuccess(): bool;
 
     /**
-     * result is failure
-     *
-     * @return boolean
-     */
-    public function isFailure(): bool;
-
-    /**
      * result is error
      *
      * @return boolean
@@ -49,28 +48,51 @@ interface Result
     public function isError(): bool;
 
     /**
-     * on success callback process
+     * on ok callback process
      *
-     * @param Closure $callback
+     * @param callable(S):void $callback
      * @return static
      */
-    public function onSuccess(Closure $callback);
-
-    /**
-     * on failure callback process
-     *
-     * @param Closure $callback
-     * @return static
-     */
-    public function onFailure(Closure $callback);
+    public function onSuccess(callable $callback);
 
     /**
      * on error callback process
      *
-     * @param Closure $callback
+     * @param callable(E):void $callback
      * @return static
      */
-    public function onError(Closure $callback);
+    public function onError(callable $callback);
+
+    /**
+     * map success
+     *
+     * @template R
+     *
+     * @param callable(S):R $callback
+     * @return Result<R,never>
+     */
+    public function map(callable $callback): Result;
+
+    /**
+     * flat map success
+     *
+     * @template R
+     * @template F
+     *
+     * @param callable(S):Result<R,F> $callback
+     * @return Result<R,F>
+     */
+    public function flatMap(callable $callback): Result;
+
+    /**
+     * map error
+     *
+     * @template R
+     *
+     * @param callable(E):R $callback
+     * @return Result<never,R>
+     */
+    public function mapError(callable $callback): Result;
 
     /**
      * throw exception
@@ -81,16 +103,14 @@ interface Result
     public function exception();
 
     /**
-     * on result callback process
+     * output result process
      *
-     * @param Closure|null $onSuccess
-     * @param Closure|null $onFailure
-     * @param Closure|null $onError
+     * @param callable|null $success
+     * @param callable|null $error
      * @return mixed
      */
-    public function on(
-        ?Closure $onSuccess = null,
-        ?Closure $onFailure = null,
-        ?Closure $onError = null,
+    public function output(
+        ?callable $success = null,
+        ?callable $error = null,
     ): mixed;
 }
