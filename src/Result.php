@@ -27,7 +27,7 @@ interface Result
      * @param R $or
      * @return S|R
      */
-    public function successOr($or);
+    public function successOr($or = null);
 
     /**
      * get error result data
@@ -44,7 +44,7 @@ interface Result
      * @param R $or
      * @return E|R
      */
-    public function errorOr($or);
+    public function errorOr($or = null);
 
     /**
      * get result type

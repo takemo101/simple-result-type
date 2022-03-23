@@ -144,10 +144,13 @@ class ResultTest extends TestCase
      */
     public function success__successOr__OK(): void
     {
-        $data = Resulter::success('string')
-            ->successOr('success');
+        $result = Resulter::success('string');
 
-        $this->assertEquals($data, 'string');
+        $this->assertEquals($result->successOr('success'), 'string');
+
+        $result = Resulter::error('string');
+
+        $this->assertEquals($result->successOr(), null);
     }
 
     /**
@@ -283,10 +286,13 @@ class ResultTest extends TestCase
      */
     public function error__errorOr__OK(): void
     {
-        $data = Resulter::error('string')
-            ->errorOr('error');
+        $result = Resulter::error('string');
 
-        $this->assertEquals($data, 'string');
+        $this->assertEquals($result->errorOr('error'), 'string');
+
+        $result = Resulter::success('string');
+
+        $this->assertEquals($result->errorOr(), null);
     }
 
 
