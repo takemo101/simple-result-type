@@ -1,22 +1,19 @@
 <?php
 
-namespace Takemo101\SimpleResultType;
+namespace Takemo101\SimpleResultType\Support;
 
 use InvalidArgumentException;
 use Throwable;
 
-use Attribute;
-
 /**
- * Attribute class for trial processing
+ * abstract catch type class for trial processing
  */
-#[Attribute(Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
-final class CatchType
+abstract class AbstractCatchType implements Catchable
 {
     /**
      * @var string[]
      */
-    private array $classes = [];
+    protected array $classes = [];
 
     /**
      * constructor
@@ -37,22 +34,5 @@ final class CatchType
             }
             $this->classes[] = $class;
         }
-    }
-
-    /**
-     * are exceptions included in the target
-     *
-     * @param Throwable $e
-     * @return boolean
-     */
-    public function included(Throwable $e): bool
-    {
-        foreach ($this->classes as $class) {
-            if ($e instanceof $class) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

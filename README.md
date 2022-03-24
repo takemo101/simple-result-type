@@ -79,9 +79,10 @@ var_dump($data); // string(7) "success"
 ```
 Try operations that may fail and produce results.
 ```php
-use Takemo101\SimpleResultType\{
-    Resulter,
+use Takemo101\SimpleResultType\Resulter;
+use Takemo101\SimpleResultType\Support\ {
     CatchType,
+    NotCatchType,
 };
 use Exception;
 use LogicException;
@@ -99,13 +100,26 @@ $result = Resulter::trial(function() {
 }); // Success<integer>
 
 // No error is output except for the exception specified in the CatchType Attribute class.
-Resulter::trial(
+$result = Resulter::trial(
     #[CatchType(
         RuntimeException::class,
         InvalidArgumentException::class,
     )]
     function() {
-        throw new LogicException('error');
+        throw new RuntimeException('error');
     }
-);
+); // Error<RuntimeException>
+
+var_dump($result->isError()); // bool(true)
+
+// No error is output for the exception specified in the NotCatchType Attribute class.
+Resulter::trial(
+    #[NotCatchType(
+        RuntimeException::class,
+        InvalidArgumentException::class,
+    )]
+    function() {
+        throw new RuntimeException('error');
+    }
+); // Exception occurs.
 ```
