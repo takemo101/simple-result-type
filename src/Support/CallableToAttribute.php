@@ -2,41 +2,40 @@
 
 namespace Takemo101\SimpleResultType\Support;
 
-use Takemo101\SimpleResultType\CatchType;
 use ReflectionFunction;
+use ReflectionParameter;
+use ReflectionAttribute;
 use Closure;
 
 final class CallableToAttribute
 {
     /**
-     * @var ReflectionFunction
-     */
-    private ReflectionFunction $reflection;
-
-    /**
      * constructor
      *
-     * @param Closure|string $callable
+     * @param ReflectionFunction $reflection
      */
     private function __construct(
-        Closure|string $callable,
+        private ReflectionFunction $reflection,
     ) {
-        $this->reflection = new ReflectionFunction($callable);
+        //
     }
 
     /**
      * to catch error type attribute class
      *
-     * @return CatchType|null
+     * @return Catchable|null
      */
-    public function toAttribute(): ?CatchType
+    public function toAttribute(): ?Catchable
     {
-        $reflections = $this->reflection->getAttributes(CatchType::class);
+        $reflections = $this->reflection->getAttributes(
+            Catchable::class,
+            ReflectionAttribute::IS_INSTANCEOF,
+        );
 
         if (count($reflections) > 0) {
             $reflection = current($reflections);
 
-            /** @var CatchType */
+            /** @var Catchable */
             $attribute = $reflection->newInstance();
 
             return $attribute;
@@ -54,7 +53,7 @@ final class CallableToAttribute
     public static function create(callable $callable): ?self
     {
         if (($callable instanceof Closure) || is_string($callable)) {
-            return new self($callable);
+            return new self(new ReflectionFunction($callable));
         }
 
         return null;

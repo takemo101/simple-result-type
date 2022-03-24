@@ -3,13 +3,15 @@
 namespace Test;
 
 use PHPUnit\Framework\TestCase;
-use Takemo101\SimpleResultType\{
-    Resulter,
+use Takemo101\SimpleResultType\Resulter;
+use Takemo101\SimpleResultType\Support\{
     CatchType,
+    NotCatchType,
 };
 use RuntimeException;
 use InvalidArgumentException;
 use Exception;
+use LogicException;
 
 /**
  * resulter test
@@ -98,6 +100,43 @@ class ResulterTest extends TestCase
             #[CatchType(RuntimeException::class)]
             function () {
                 throw new Exception('error');
+            }
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function resulter__NotCatchType__OK(): void
+    {
+        $result = Resulter::trial(
+            #[NotCatchType(
+                InvalidArgumentException::class,
+                LogicException::class,
+            )]
+            function () {
+                throw new RuntimeException('error');
+            }
+        );
+
+        $this->assertTrue($result->error() instanceof RuntimeException);
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function resulter__NotCatchType__NG(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        Resulter::trial(
+            #[NotCatchType(RuntimeException::class)]
+            function () {
+                throw new RuntimeException('error');
             }
         );
     }

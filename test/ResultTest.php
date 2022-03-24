@@ -8,8 +8,8 @@ use Takemo101\SimpleResultType\{
     Type,
     Error,
     Success,
-    CatchType,
 };
+use Takemo101\SimpleResultType\Support\CatchType;
 use Exception;
 use RuntimeException;
 use InvalidArgumentException;
