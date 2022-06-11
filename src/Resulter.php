@@ -3,6 +3,7 @@
 namespace Takemo101\SimpleResultType;
 
 use Takemo101\SimpleResultType\Support\CallableToAttribute;
+use Takemo101\SimpleResultType\Support\ExceptionHandler;
 use Throwable;
 
 /**
@@ -18,12 +19,17 @@ final class Resulter
      * @param callable():S $callback
      * @return Result<S,Throwable>
      */
-    static public function trial(callable $callback): Result
+    static public function try(callable $callback): Result
     {
         try {
-            /** @var Result<S,never> */
-            $result = new Success(call_user_func($callback));
-            return $result;
+            /** @var S|Result<S,never> */
+            $result = call_user_func($callback);
+
+            if ($result instanceof Result) {
+                return $result;
+            }
+
+            return new Success($result);
         } catch (Throwable $e) {
 
             $errorType = CallableToAttribute::create($callback)?->toAttribute();
@@ -36,6 +42,23 @@ final class Resulter
             $result = new Error($e);
             return $result;
         }
+    }
+
+    /**
+     * try and catch
+     *
+     * @template S
+     *
+     * @param callable():S $callback
+     * @return Result<S,ExceptionHandler>
+     */
+    static public function trial(callable $callback): Result
+    {
+        return self::try($callback)->mapError(
+            function (Throwable $e): ExceptionHandler {
+                return new ExceptionHandler($e);
+            },
+        );
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace Takemo101\SimpleResultType\Support;
 
 use ReflectionFunction;
-use ReflectionParameter;
 use ReflectionAttribute;
 use Closure;
 

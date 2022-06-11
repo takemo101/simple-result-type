@@ -3,6 +3,7 @@
 namespace Takemo101\SimpleResultType;
 
 use RuntimeException;
+use Takemo101\SimpleResultType\Support\ExceptionHandler;
 use Throwable;
 
 /**
@@ -152,8 +153,13 @@ final class Error extends AbstractResult
      */
     public function exception()
     {
-        if ($this->error() instanceof Throwable) {
-            throw $this->error();
+        if ($e = $this->error()) {
+            switch ($e) {
+                case $e instanceof Throwable:
+                    throw $e;
+                case $e instanceof ExceptionHandler:
+                    throw $e->e;
+            }
         }
 
         return $this;
