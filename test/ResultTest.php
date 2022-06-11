@@ -439,17 +439,17 @@ class ResultTest extends TestCase
         // var_dump($data);
 
         // If an exception occurs, the result will be returned as Error.
-        $result = Resulter::trial(function () {
+        $result = Resulter::try(function () {
             throw new Exception('error');
         }); // Error<Exception>
 
         // By returning the success value, the result will be returned as Success.
-        $result = Resulter::trial(function () {
+        $result = Resulter::try(function () {
             return 10;
         }); // Success<integer>
 
         // No error is output except for the exception specified in the CatchType Attribute class.
-        Resulter::trial(
+        Resulter::try(
             #[CatchType(
                 RuntimeException::class,
                 InvalidArgumentException::class,
