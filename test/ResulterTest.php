@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Takemo101\SimpleResultType\Resulter;
 use Takemo101\SimpleResultType\Support\{
     CatchType,
+    ErrorHandler,
     NotCatchType,
 };
 use RuntimeException;
@@ -18,6 +19,7 @@ use LogicException;
  */
 class ResulterTest extends TestCase
 {
+
     /**
      * @test
      *
@@ -32,6 +34,15 @@ class ResulterTest extends TestCase
             ->success();
 
         $this->assertEquals($data, 'string');
+
+        $error = Resulter::trial(function () {
+            throw new RuntimeException('error');
+
+            // return 'string';
+        })
+            ->output(error: fn (ErrorHandler $handler) => $handler->e);
+
+        $this->assertTrue($error instanceof RuntimeException);
     }
 
     /**
@@ -41,9 +52,42 @@ class ResulterTest extends TestCase
      */
     public function resulter__trial__NG(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(RuntimeException::class);
 
         Resulter::trial(function () {
+            throw new RuntimeException('error');
+
+            // return 'string';
+        })
+            ->exception();
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function resulter__try__OK(): void
+    {
+        $data = Resulter::try(function () {
+            return 'string';
+        })
+            ->exception()
+            ->success();
+
+        $this->assertEquals($data, 'string');
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function resulter__try__NG(): void
+    {
+        $this->expectException(Exception::class);
+
+        Resulter::try(function () {
             throw new Exception('error');
         })
             ->exception()
@@ -57,7 +101,7 @@ class ResulterTest extends TestCase
      */
     public function resulter__CatchType__OK(): void
     {
-        $result = Resulter::trial(
+        $result = Resulter::try(
             #[CatchType(Exception::class)]
             function () {
                 throw new RuntimeException('error');
@@ -74,7 +118,7 @@ class ResulterTest extends TestCase
      */
     public function resulter__CatchType__multi__OK(): void
     {
-        $result = Resulter::trial(
+        $result = Resulter::try(
             #[CatchType(
                 RuntimeException::class,
                 InvalidArgumentException::class,
@@ -96,7 +140,7 @@ class ResulterTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        Resulter::trial(
+        Resulter::try(
             #[CatchType(RuntimeException::class)]
             function () {
                 throw new Exception('error');
@@ -111,7 +155,7 @@ class ResulterTest extends TestCase
      */
     public function resulter__NotCatchType__OK(): void
     {
-        $result = Resulter::trial(
+        $result = Resulter::try(
             #[NotCatchType(
                 InvalidArgumentException::class,
                 LogicException::class,
@@ -133,7 +177,7 @@ class ResulterTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        Resulter::trial(
+        Resulter::try(
             #[NotCatchType(RuntimeException::class)]
             function () {
                 throw new RuntimeException('error');
