@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Takemo101\SimpleResultType\Resulter;
 use Takemo101\SimpleResultType\Support\{
     CatchType,
-    ExceptionHandler,
+    ErrorHandler,
     NotCatchType,
 };
 use RuntimeException;
@@ -38,9 +38,9 @@ class ResulterTest extends TestCase
         $error = Resulter::trial(function () {
             throw new RuntimeException('error');
 
-            return 'string';
+            // return 'string';
         })
-            ->output(error: fn (ExceptionHandler $handler) => $handler->e);
+            ->output(error: fn (ErrorHandler $handler) => $handler->e);
 
         $this->assertTrue($error instanceof RuntimeException);
     }
@@ -57,7 +57,7 @@ class ResulterTest extends TestCase
         Resulter::trial(function () {
             throw new RuntimeException('error');
 
-            return 'string';
+            // return 'string';
         })
             ->exception();
     }

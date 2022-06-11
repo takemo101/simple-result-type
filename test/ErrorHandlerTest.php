@@ -7,12 +7,12 @@ use RuntimeException;
 use Exception;
 use LogicException;
 use InvalidArgumentException;
-use Takemo101\SimpleResultType\Support\ExceptionHandler;
+use Takemo101\SimpleResultType\Support\ErrorHandler;
 
 /**
  * exception handler test
  */
-class ExceptionHandlerTest extends TestCase
+class ErrorHandlerTest extends TestCase
 {
     /**
      * @test
@@ -23,7 +23,7 @@ class ExceptionHandlerTest extends TestCase
     {
         $message = 'error';
 
-        $handler = new ExceptionHandler(new Exception($message));
+        $handler = new ErrorHandler(new Exception($message));
         $result = $handler
             ->catch(function (Exception $e) {
                 return $e->getMessage();
@@ -37,13 +37,27 @@ class ExceptionHandlerTest extends TestCase
 
         $message = 'runtime error';
 
-        $handler = new ExceptionHandler(new RuntimeException($message));
+        $handler = new ErrorHandler(new RuntimeException($message));
         $result = $handler
             ->catch(fn (RuntimeException $e) => $e->getMessage())
             ->catch(fn (Exception $e) => 'error')
             ->exception();
 
         $this->assertEquals($result, $message);
+
+        $handler = new ErrorHandler(new RuntimeException($message));
+        $result = $handler
+            ->catch(fn (RuntimeException $e) => $e->getMessage())
+            ->call();
+
+        $this->assertEquals($result, $message);
+
+        $handler = new ErrorHandler(new LogicException($message));
+        $result = $handler
+            ->catch(fn (RuntimeException $e) => $e->getMessage())
+            ->call();
+
+        $this->assertNull($result);
     }
 
     /**
@@ -55,7 +69,7 @@ class ExceptionHandlerTest extends TestCase
     {
         $this->expectException(LogicException::class);
 
-        $handler = new ExceptionHandler(new LogicException('error'));
+        $handler = new ErrorHandler(new LogicException('error'));
         $handler
             ->catch(function (InvalidArgumentException $e) {
                 return 'invalid error';

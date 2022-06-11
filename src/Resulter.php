@@ -3,7 +3,7 @@
 namespace Takemo101\SimpleResultType;
 
 use Takemo101\SimpleResultType\Support\CallableToAttribute;
-use Takemo101\SimpleResultType\Support\ExceptionHandler;
+use Takemo101\SimpleResultType\Support\ErrorHandler;
 use Throwable;
 
 /**
@@ -50,13 +50,13 @@ final class Resulter
      * @template S
      *
      * @param callable():S $callback
-     * @return Result<S,ExceptionHandler>
+     * @return Result<S,ErrorHandler>
      */
     static public function trial(callable $callback): Result
     {
         return self::try($callback)->mapError(
-            function (Throwable $e): ExceptionHandler {
-                return new ExceptionHandler($e);
+            function (Throwable $e): ErrorHandler {
+                return new ErrorHandler($e);
             },
         );
     }

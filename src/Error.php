@@ -3,7 +3,7 @@
 namespace Takemo101\SimpleResultType;
 
 use RuntimeException;
-use Takemo101\SimpleResultType\Support\ExceptionHandler;
+use Takemo101\SimpleResultType\Support\ErrorHandler;
 use Throwable;
 
 /**
@@ -157,7 +157,7 @@ final class Error extends AbstractResult
             switch ($e) {
                 case $e instanceof Throwable:
                     throw $e;
-                case $e instanceof ExceptionHandler:
+                case $e instanceof ErrorHandler:
                     throw $e->e;
             }
         }

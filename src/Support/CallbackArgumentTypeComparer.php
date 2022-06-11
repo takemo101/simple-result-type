@@ -8,6 +8,7 @@ use ReflectionType;
 use ReflectionUnionType;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
+use Closure;
 
 /**
  * Compare the types of Callback arguments
@@ -88,5 +89,18 @@ final class CallbackArgumentTypeComparer
         $class = get_class($type);
 
         throw new RuntimeException("[{$class}] type is not supported!");
+    }
+
+    /**
+     * to compare result
+     *
+     * @param Closure $callback
+     * @param object $obj
+     * @return boolean
+     */
+    public static function compare(Closure $callback, object $obj): bool
+    {
+        $comparer = new self(new ReflectionFunction($callback));
+        return $comparer->equals($obj);
     }
 }

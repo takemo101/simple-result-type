@@ -2,14 +2,13 @@
 
 namespace Takemo101\SimpleResultType\Support;
 
-use ReflectionFunction;
 use Throwable;
 use Closure;
 
 /**
  * Process according to the exception type
  */
-final class ExceptionHandler
+final class ErrorHandler
 {
     /**
      * @var Closure[]
@@ -28,6 +27,22 @@ final class ExceptionHandler
     }
 
     /**
+     * call catch callbacks
+     *
+     * @return mixed
+     */
+    public function call(): mixed
+    {
+        foreach ($this->callbacks as $callback) {
+            if (CallbackArgumentTypeComparer::compare($callback, $this->e)) {
+                return $callback($this->e);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * throw exception or call callback
      *
      * @return mixed
@@ -35,9 +50,7 @@ final class ExceptionHandler
     public function exception(): mixed
     {
         foreach ($this->callbacks as $callback) {
-            $comparer = new CallbackArgumentTypeComparer(new ReflectionFunction($callback));
-
-            if ($comparer->equals($this->e)) {
+            if (CallbackArgumentTypeComparer::compare($callback, $this->e)) {
                 return $callback($this->e);
             }
         }
