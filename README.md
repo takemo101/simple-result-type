@@ -123,3 +123,23 @@ Resulter::try(
     }
 ); // Exception occurs.
 ```
+Exception handling by ErrorHandler class.
+```php
+use Takemo101\SimpleResultType\Resulter;
+use Takemo101\SimpleResultType\Support\ErrorHandler;
+use LogicException;
+use RuntimeException;
+
+// If an exception occurs, the Error wrapped in the ErrorHandler class is returned.
+$result = Resulter::trial(function() {
+    throw new RuntimeException('error');
+}); // Error<ErrorHandler>
+
+// ErrorHandler can be used for processing according to the type of exception
+$data = $result->error()
+    ->catch(fn (RuntimeException $e) => $e->getMessage())
+    ->catch(fn (LogicException $e) => $e->getMessage())
+    ->exception(); // or ->call();
+
+var_dump($data); // string(5) "error"
+```
