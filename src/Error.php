@@ -11,6 +11,7 @@ use Throwable;
  *
  * @template E
  * @extends AbstractResult<never,E>
+ * @immutable
  */
 final class Error extends AbstractResult
 {
@@ -60,11 +61,11 @@ final class Error extends AbstractResult
      * on success callback process
      *
      * @param callable $callback
-     * @return static
+     * @return Result<never,E>
      */
     public function onSuccess(callable $callback)
     {
-        return $this;
+        return new self($this->result);
     }
 
     /**
@@ -77,7 +78,7 @@ final class Error extends AbstractResult
     {
         call_user_func($callback, $this->error());
 
-        return $this;
+        return new self($this->result);
     }
 
     /**
@@ -88,7 +89,7 @@ final class Error extends AbstractResult
      */
     public function map(callable $callback): Result
     {
-        return $this;
+        return new self($this->result);
     }
 
     /**
@@ -101,7 +102,7 @@ final class Error extends AbstractResult
      */
     public function mapError(callable $callback): Result
     {
-        return new static($callback($this->error()));
+        return new self($callback($this->error()));
     }
 
     /**
@@ -112,7 +113,7 @@ final class Error extends AbstractResult
      */
     public function flatMap(callable $callback): Result
     {
-        return $this;
+        return new self($this->result);
     }
 
     /**
@@ -136,13 +137,15 @@ final class Error extends AbstractResult
      *
      * @param callable|null $success
      * @param callable(E):R|null $error
-     * @return Result<never,R>
+     * @return Result<never,R>|static
      */
     public function mapBoth(
         ?callable $success = null,
         ?callable $error = null,
     ): Result {
-        return $error ? new static(call_user_func($error, $this->error())) : $this;
+        return $error ?
+            new static(call_user_func($error, $this->error())) :
+            new self($this->result);
     }
 
     /**
@@ -162,7 +165,7 @@ final class Error extends AbstractResult
             }
         }
 
-        return $this;
+        return new self($this->result);
     }
 
     /**
@@ -176,6 +179,6 @@ final class Error extends AbstractResult
      */
     public static function create($result = null)
     {
-        return new static($result);
+        return new self($result);
     }
 }
