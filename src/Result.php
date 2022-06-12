@@ -134,7 +134,7 @@ interface Result
      *
      * @param callable(S):R $success
      * @param callable(E):F $error
-     * @return Result<R,F>
+     * @return Result<R,F>|Result<S,E>
      */
     public function mapBoth(
         callable $success,

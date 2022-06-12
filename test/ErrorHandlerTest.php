@@ -79,4 +79,31 @@ class ErrorHandlerTest extends TestCase
             })
             ->exception();
     }
+
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function handler__clear__OK(): void
+    {
+        $message = 'error';
+
+        $handler = new ErrorHandler(new Exception($message));
+        $handler = $handler
+            ->catch(function (Exception $e) {
+                return $e->getMessage();
+            });
+
+        $result = $handler->call();
+
+        $this->assertEquals($result, $message);
+
+        $result = $handler
+            ->clear()
+            ->call();
+
+        $this->assertNull($result);
+    }
 }
