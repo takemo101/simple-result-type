@@ -7,21 +7,19 @@ use Closure;
 
 /**
  * Process according to the exception type
+ * @immutable
  */
 final class ErrorHandler
 {
     /**
-     * @var Closure[]
-     */
-    private $callbacks = [];
-
-    /**
      * constructor
      *
      * @param Throwable $e
+     * @param Closure[] $callbacks
      */
     public function __construct(
         public readonly Throwable $e,
+        public array $callbacks = [],
     ) {
         //
     }
@@ -68,6 +66,21 @@ final class ErrorHandler
     {
         $this->callbacks[] = $callback;
 
-        return $this;
+        return new self(
+            $this->e,
+            $this->callbacks,
+        );
+    }
+
+    /**
+     * clear callbacks
+     *
+     * @return self
+     */
+    public function clear(): self
+    {
+        return new self(
+            $this->e,
+        );
     }
 }
